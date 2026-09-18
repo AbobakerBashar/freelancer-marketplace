@@ -1,0 +1,43 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  password     String
+
+  avatarUrl       String?
+  avatarPublicId       String?
+  bio          String?
+  phone        String?
+  location     String?
+
+  role         UserRole @default(FREELANCER)
+
+  isVerified   Boolean  @default(false)
+  isActive     Boolean  @default(true)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  // gigs         Gig[]
+  // orders       Order[]
+  // reviews      Review[]
+  // skills       UserSkill[]
+  // messagesSent Message[] @relation("SentMessages")
+  // messagesReceived Message[] @relation("ReceivedMessages")
+}
+
+enum UserRole {
+  FREELANCER
+  CLIENT
+  ADMIN
+}
