@@ -7,11 +7,17 @@ export const validate = (
 ) => {
 	return (req: Request, res: Response, next: NextFunction) => {
 		const result = schema.safeParse(req[target]);
-		console.log("Validation result:", result);
+
 		if (!result.success) {
+			const formatedErrors: Record<string, string> = {};
+
+			for (const issue of result.error.issues) {
+				formatedErrors[issue.path.join(".")] = issue.message;
+			}
+
 			return res.status(400).json({
 				message: "Validation failed",
-				errors: result.error.issues,
+				errors: formatedErrors,
 			});
 		}
 

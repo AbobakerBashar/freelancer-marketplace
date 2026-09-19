@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 
 import authRoutes from "./routes/auth.js";
+import { errorMiddleware } from "./middleware/error.middleware.js";
 
 const app = express();
 
@@ -19,5 +20,8 @@ app.get("/", (_, res) => {
 
 // AUTH ROUTES
 app.use("/api/auth", authRoutes);
+
+// Error handling middleware
+app.use(errorMiddleware);
 
 export default app;

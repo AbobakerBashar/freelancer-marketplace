@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { register, login, update, deleteUser } from "../controllers/auth.js";
+import {
+	getMe,
+	register,
+	login,
+	update,
+	deleteUser,
+} from "../controllers/auth.js";
 
 import { validate } from "../middleware/validate.js";
 import {
@@ -7,15 +13,28 @@ import {
 	loginSchema,
 	updateSchema,
 } from "../schemas/auth.schemas.js";
+import { authMiddleware } from "../middleware/auth.js";
+import { asyncHandler } from "../utils/async-handler.js";
 
 const router = Router();
 
-router.post("/register", validate(registerSchema, "body"), register);
+router.get("/me", authMiddleware, asyncHandler(getMe));
 
-router.post("/login", validate(loginSchema, "body"), login);
+router.post(
+	"/register",
+	validate(registerSchema, "body"),
+	asyncHandler(register),
+);
 
-router.put("/update", validate(updateSchema, "body"), update);
+router.post("/login", validate(loginSchema, "body"), asyncHandler(login));
 
-router.delete("/delete", deleteUser);
+router.patch(
+	"/update",
+	authMiddleware,
+	validate(updateSchema, "body"),
+	asyncHandler(update),
+);
+
+router.delete("/delete", asyncHandler(deleteUser));
 
 export default router;
