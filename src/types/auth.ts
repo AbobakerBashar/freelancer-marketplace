@@ -2,8 +2,8 @@ type User = {
 	id: string;
 	name: string;
 	email: string;
-	bio?: string;
-	avatarUrl?: string;
+	bio?: string | null;
+	avatarUrl?: string | null;
 	createdAt?: Date;
 	updatedAt?: Date;
 };
