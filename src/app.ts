@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 
 import authRoutes from "./routes/auth.js";
+import projectsRoutes from "./routes/projects.js";
 import { errorMiddleware } from "./middleware/error.middleware.js";
 
 const app = express();
@@ -20,6 +21,9 @@ app.get("/", (_, res) => {
 
 // AUTH ROUTES
 app.use("/api/auth", authRoutes);
+
+// PROJECTS ROUTES
+app.use("/api/projects", projectsRoutes);
 
 // Error handling middleware
 app.use(errorMiddleware);

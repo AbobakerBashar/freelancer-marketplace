@@ -25,7 +25,7 @@ export const register = async (
 	const user = await registerService(res, req.body);
 
 	// Set cookie with the user ID
-	generateAndSetAuthCookie(res, user.id);
+	generateAndSetAuthCookie(res, user.id, user.role);
 
 	res
 		.status(201)
@@ -39,7 +39,7 @@ export const login = async (
 	const user = await loginService(req.body);
 
 	// Set cookie with the user ID
-	generateAndSetAuthCookie(res, user.id);
+	generateAndSetAuthCookie(res, user.id, user.role);
 
 	res.json({ success: true, message: "User logged in successfully", user });
 };
