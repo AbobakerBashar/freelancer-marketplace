@@ -21,7 +21,8 @@ export const validate = (
 			});
 		}
 
-		req[target] = result.data;
+		if (target === "query") res.locals.query = result.data;
+		else req[target] = result.data;
 
 		next();
 	};

@@ -8,7 +8,7 @@ datasource db {
 }
 
 model User {
-  id       String @id @default(uuid())
+  id       String @id @default(uuid()) @db.Uuid
   name     String @db.VarChar(100)
   email    String @unique @db.VarChar(250)
   password String @db.VarChar(250)
@@ -34,10 +34,75 @@ model User {
   // skills       UserSkill[]
   // messagesSent Message[] @relation("SentMessages")
   // messagesReceived Message[] @relation("ReceivedMessages")
+  projects Project[]
 }
 
 enum UserRole {
   FREELANCER
   CLIENT
   ADMIN
+}
+
+model Project {
+  id String @id @default(uuid()) @db.Uuid
+
+  // Client who posted the project
+  clientId String @db.Uuid
+  client   User   @relation(fields: [clientId], references: [id])
+
+  // Basic information
+  title       String
+  description String @db.Text
+
+  // Project requirements
+  category String
+  skills   String[]
+
+  // Budget
+  budgetType BudgetType
+  budgetMin  Decimal?   @db.Decimal(12, 2)
+  budgetMax  Decimal?   @db.Decimal(12, 2)
+  currency   String     @default("RWF")
+
+  // Timeline
+  duration     Int?
+  durationUnit DurationUnit?
+
+  // Status
+  status ProjectStatus @default(OPEN)
+
+  // Dates
+  deadline  DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relations
+  // proposals Proposal[]
+
+  @@unique([title, clientId, category])
+  @@index([clientId])
+  @@index([category])
+  @@index([status])
+  @@index([createdAt])
+}
+
+enum BudgetType {
+  FIXED
+  HOURLY
+}
+
+enum DurationUnit {
+  HOURS
+  DAYS
+  WEEKS
+  MONTHS
+}
+
+enum ProjectStatus {
+  DRAFT
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  CLOSED
 }

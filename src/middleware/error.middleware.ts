@@ -11,7 +11,7 @@ export const errorMiddleware = (
 	next: NextFunction,
 ) => {
 	const pathname = req.path;
-	console.log("pathname", pathname.slice(pathname.lastIndexOf("/api/") + 5));
+	console.log(error);
 
 	if (error instanceof Prisma.PrismaClientKnownRequestError) {
 		switch (error.code) {

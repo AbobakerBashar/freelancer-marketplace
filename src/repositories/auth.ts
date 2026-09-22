@@ -6,16 +6,23 @@ export const getUserById = async (id: string) => {
 		where: {
 			id,
 		},
-		select: {
-			id: true,
-			name: true,
-			email: true,
-			bio: true,
-			avatarUrl: true,
-			createdAt: true,
-			updatedAt: true,
+		omit: {
+			password: true,
 		},
 	});
+};
+
+export const isVerifiedAndIsActiveUser = async (userId: string) => {
+	const user = await prisma.user.findUnique({
+		where: {
+			id: userId,
+		},
+		select: {
+			isVerified: true,
+			isActive: true,
+		},
+	});
+	return (user?.isVerified && user?.isActive) || false;
 };
 
 export const createUser = async (userData: RegisterInput) => {
@@ -25,6 +32,7 @@ export const createUser = async (userData: RegisterInput) => {
 			id: true,
 			name: true,
 			email: true,
+			role: true,
 		},
 	});
 };
@@ -39,6 +47,7 @@ export const getUserByEmail = async (email: string) => {
 			name: true,
 			email: true,
 			password: true,
+			role: true,
 		},
 	});
 };

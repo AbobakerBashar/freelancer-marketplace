@@ -1,4 +1,4 @@
-import type { Request, Response, NextFunction } from "express";
+import type { NextFunction, Request, Response } from "express";
 import { verifyAuthToken } from "../utils/auth.js";
 
 export const authMiddleware = (
@@ -11,10 +11,10 @@ export const authMiddleware = (
 		if (!token) return res.status(401).json({ message: "Unauthorized" });
 
 		// Verify the token and extract the user ID
-		const { id } = verifyAuthToken(token);
+		const { id, role } = verifyAuthToken(token);
 
 		// Attach the user ID to the request object
-		req.user = { id };
+		req.user = { id, role };
 
 		next();
 	} catch (error) {

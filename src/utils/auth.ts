@@ -17,15 +17,23 @@ if (!JWT_SECRET) {
 }
 
 // Generates a JWT token and sets it as a cookie in the response
-export const generateAndSetAuthCookie = (res: Response, id: string) => {
-	const token = jwt.sign({ id }, JWT_SECRET as string, { expiresIn: "3d" });
+export const generateAndSetAuthCookie = (
+	res: Response,
+	id: string,
+	role: string,
+) => {
+	const token = jwt.sign({ id, role }, JWT_SECRET as string, {
+		expiresIn: "3d",
+	});
 
 	res.cookie("jwt", token, COOKIE_OPTIONS);
 };
 
 // Verifies a JWT token and returns the decoded payload
-export const verifyAuthToken = (token: string): { id: string } => {
-	return jwt.verify(token, JWT_SECRET) as { id: string };
+export const verifyAuthToken = (
+	token: string,
+): { id: string; role: string } => {
+	return jwt.verify(token, JWT_SECRET) as { id: string; role: string };
 };
 
 // Hashes a password using bcrypt
