@@ -83,6 +83,22 @@ export const getProjectByIdRepo = async (id: string) => {
 	});
 };
 
+export const getPopularCategoriesRepo = async () => {
+	const categories = await prisma.project.groupBy({
+		by: ["category"],
+		_count: {
+			id: true,
+		},
+		orderBy: {
+			_count: {
+				id: "desc",
+			},
+		},
+		take: 5,
+	});
+	return categories;
+};
+
 export const createProjectRepo = async (
 	id: string,
 	projectData: CreateProjectInput,

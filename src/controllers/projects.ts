@@ -14,6 +14,7 @@ import {
 	updateProjectService,
 	deleteProjectService,
 	getProjectsStatsicsService,
+	getPopularCategoriesService,
 } from "../services/projects.js";
 
 export const getProjects = async (
@@ -50,6 +51,14 @@ export const getProjectById = async (
 	res.status(200).json({
 		success: true,
 		project,
+	});
+};
+
+export const getPopularCategories = async (req: Request, res: Response) => {
+	const categories = await getPopularCategoriesService();
+	res.status(200).json({
+		success: true,
+		categories,
 	});
 };
 

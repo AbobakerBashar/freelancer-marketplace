@@ -26,7 +26,7 @@ router.post(
 	asyncHandler(register),
 );
 
-router.post("/login", validate(loginSchema, "body"), asyncHandler(login));
+router.post("/signin", validate(loginSchema, "body"), asyncHandler(login));
 
 router.patch(
 	"/update",

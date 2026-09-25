@@ -6,6 +6,7 @@ import {
 	updateProject,
 	deleteProject,
 	getProjectsStatsics,
+	getPopularCategories,
 } from "../controllers/projects.js";
 
 import { asyncHandler } from "../utils/async-handler.js";
@@ -18,6 +19,7 @@ import {
 	projectUpdateSchema,
 } from "../schemas/projects.schema.js";
 import { authMiddleware } from "../middleware/auth.js";
+import { getProposalsByProjectId } from "../controllers/proposals.js";
 
 const router = Router();
 
@@ -30,6 +32,9 @@ router.get(
 
 // GET /projects/stats  --> Get projects statistics
 router.get("/stats", asyncHandler(getProjectsStatsics));
+
+// GET /projects/popular-categories  --> Get popular project categories
+router.get("/popular-categories", asyncHandler(getPopularCategories));
 
 // GET /projects/:id  --> Get project by ID
 router.get("/:id", asyncHandler(getProjectById));
@@ -52,5 +57,10 @@ router.put(
 
 // DELETE /projects/:id   --> Delete a project by ID
 router.delete("/:id", authMiddleware, asyncHandler(deleteProject));
+
+/*
+/Get all proposals for a specific project
+*/
+router.get("/:id/proposals", asyncHandler(getProposalsByProjectId));
 
 export default router;
