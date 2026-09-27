@@ -13,6 +13,7 @@ export type AuthResponse = {
 	message?: string;
 	user?: User;
 	errors?: Record<string, string>;
+	token?: string;
 };
 
 export type LoginInput = {

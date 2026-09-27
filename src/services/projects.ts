@@ -7,6 +7,7 @@ import {
 	getProjectsRepo,
 	getProjectsStatsicsRepo,
 	updateProjectRepo,
+	getPopularCategoriesRepo,
 } from "../repositories/projects.js";
 import type {
 	CreateProjectInput,
@@ -43,6 +44,13 @@ export const getProjectByIdService = async (id: string) => {
 	return project;
 };
 
+export const getPopularCategoriesService = async () => {
+	const categories = await getPopularCategoriesRepo();
+	return categories.map((category) => ({
+		category: category.category,
+		count: category._count.id,
+	}));
+};
 export const createProjectService = async (
 	id: string,
 	projectData: CreateProjectInput,

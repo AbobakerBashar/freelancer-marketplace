@@ -8,10 +8,13 @@ export const authMiddleware = (
 ) => {
 	try {
 		const token = req.cookies.jwt;
+
 		if (!token) return res.status(401).json({ message: "Unauthorized" });
 
 		// Verify the token and extract the user ID
 		const { id, role } = verifyAuthToken(token);
+
+		if (!id || !role) return res.status(401).json({ message: "Unauthorized" });
 
 		// Attach the user ID to the request object
 		req.user = { id, role };

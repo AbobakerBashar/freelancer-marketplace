@@ -6,7 +6,6 @@ import type { Response } from "express";
 
 import jwt from "jsonwebtoken";
 import { AppError } from "./AppError.js";
-import { COOKIE_OPTIONS } from "./constants.js";
 
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -17,16 +16,12 @@ if (!JWT_SECRET) {
 }
 
 // Generates a JWT token and sets it as a cookie in the response
-export const generateAndSetAuthCookie = (
-	res: Response,
-	id: string,
-	role: string,
-) => {
+export const generateToken = (res: Response, id: string, role: string) => {
 	const token = jwt.sign({ id, role }, JWT_SECRET as string, {
 		expiresIn: "3d",
 	});
 
-	res.cookie("jwt", token, COOKIE_OPTIONS);
+	return token;
 };
 
 // Verifies a JWT token and returns the decoded payload

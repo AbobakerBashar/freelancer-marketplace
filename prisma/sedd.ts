@@ -17,7 +17,7 @@ const adapter = new PrismaPg({
 });
 const prisma = new PrismaClient({ adapter });
 
-async function main() {
+async function main1() {
 	console.log("🌱 Starting seed...");
 
 	// --------------------------------------------------
@@ -766,6 +766,50 @@ async function main() {
 	console.log(`✅ Created ${users.length} users`);
 	console.log(`✅ Created ${projects.length} projects`);
 	console.log("🌱 Seed completed!");
+}
+
+async function main() {
+	await prisma.proposal.createMany({
+		data: [
+			{
+				freelancerId: "961273e7-063a-4d5f-b7bd-584a03c881a9",
+				projectId: "580de9cf-57ca-49f1-b0b3-6cce8e8ca068",
+				coverLetter: "I would love to work on this project...",
+				bidAmount: 500,
+				deliveryDays: 7,
+			},
+			{
+				freelancerId: "961273e7-063a-4d5f-b7bd-584a03c881a9",
+				projectId: "f5aadde6-9d18-4d73-8e32-ffeefd98e4d0",
+				coverLetter:
+					"I have the skills and experience needed for this project...",
+				bidAmount: 750,
+				deliveryDays: 10,
+			},
+			{
+				freelancerId: "961273e7-063a-4d5f-b7bd-584a03c881a9",
+				projectId: "eff13ac8-d86c-4928-958e-2efb4d3921ba",
+				coverLetter: "I am interested in helping you complete this project...",
+				bidAmount: 600,
+				deliveryDays: 8,
+			},
+			{
+				freelancerId: "961273e7-063a-4d5f-b7bd-584a03c881a9",
+				projectId: "53092191-4028-48db-8bca-1b08478098f0",
+				coverLetter:
+					"I can build this solution according to your requirements...",
+				bidAmount: 900,
+				deliveryDays: 14,
+			},
+			{
+				freelancerId: "961273e7-063a-4d5f-b7bd-584a03c881a9",
+				projectId: "eec0f210-a0e8-44ab-a64a-b471f2b0c51a",
+				coverLetter: "I would be happy to contribute to this project...",
+				bidAmount: 450,
+				deliveryDays: 6,
+			},
+		],
+	});
 }
 
 main()

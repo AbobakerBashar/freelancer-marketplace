@@ -5,6 +5,7 @@ import cors from "cors";
 
 import authRoutes from "./routes/auth.js";
 import projectsRoutes from "./routes/projects.js";
+import proposalsRoutes from "./routes/proposals.js";
 import { errorMiddleware } from "./middleware/error.middleware.js";
 
 const app = express();
@@ -25,7 +26,16 @@ app.use("/api/auth", authRoutes);
 // PROJECTS ROUTES
 app.use("/api/projects", projectsRoutes);
 
+// PROPOSALS ROUTES
+
+app.use("/api/proposals", proposalsRoutes);
+
 // Error handling middleware
 app.use(errorMiddleware);
+
+// Not found route handler
+app.use((req, res) => {
+	res.status(404).json({ message: "Route not found" });
+});
 
 export default app;
