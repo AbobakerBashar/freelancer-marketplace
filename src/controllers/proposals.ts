@@ -3,6 +3,7 @@ import type {
 	ProposalCreateInputs,
 	ProposalResponse,
 	ProposalsResponse,
+	ProposalStatsResponse,
 	ProposalUpdateInputs,
 } from "../types/proposals.js";
 import {
@@ -14,6 +15,7 @@ import {
 	getProposalService,
 	acceptProposalService,
 	rejectProposalService,
+	getProposalsStatsByUserIdService,
 } from "../services/proposals.js";
 
 export const getProposalsByProjectId = async (
@@ -44,6 +46,20 @@ export const getProposalsByFreelancerId = async (
 		success: true,
 		message: "Proposals fetched successfully",
 		proposals,
+	});
+};
+
+export const getProposalsStatesByUserId = async (
+	req: Request,
+	res: Response<ProposalStatsResponse>,
+) => {
+	const userId = req.user?.id;
+	const stats = await getProposalsStatsByUserIdService(userId!);
+
+	res.status(200).json({
+		success: true,
+		message: "Proposal states fetched successfully",
+		stats,
 	});
 };
 

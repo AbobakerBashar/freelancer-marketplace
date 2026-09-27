@@ -8,6 +8,7 @@ export const authMiddleware = (
 ) => {
 	try {
 		const token = req.cookies.jwt;
+
 		if (!token) return res.status(401).json({ message: "Unauthorized" });
 
 		// Verify the token and extract the user ID

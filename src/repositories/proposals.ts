@@ -16,6 +16,19 @@ export const getProposalsByProjectIdRepo = async (
 				clientId,
 			},
 		},
+		include: {
+			project: {
+				select: {
+					title: true,
+					skills: true,
+					client: {
+						select: {
+							name: true,
+						},
+					},
+				},
+			},
+		},
 	});
 	return proposals;
 };
@@ -25,7 +38,71 @@ export const getProposalsByFreelancerIdRepo = async (freelancerId: string) => {
 		where: {
 			freelancerId,
 		},
+		include: {
+			project: {
+				select: {
+					title: true,
+					skills: true,
+					client: {
+						select: {
+							name: true,
+						},
+					},
+				},
+			},
+		},
 	});
+};
+
+export const getProposalsStatsByUserIdRepo = async (userId: string) => {
+	function pendingCount() {
+		return prisma.proposal.count({
+			where: {
+				freelancerId: userId,
+				status: "PENDING",
+			},
+		});
+	}
+
+	function acceptedCount() {
+		return prisma.proposal.count({
+			where: {
+				freelancerId: userId,
+				status: "ACCEPTED",
+			},
+		});
+	}
+
+	function rejectedCount() {
+		return prisma.proposal.count({
+			where: {
+				freelancerId: userId,
+				status: "REJECTED",
+			},
+		});
+	}
+
+	function withdrawnCount() {
+		return prisma.proposal.count({
+			where: {
+				freelancerId: userId,
+				status: "WITHDRAWN",
+			},
+		});
+	}
+
+	const [pending, accepted, rejected, withdrawn] = await prisma.$transaction([
+		pendingCount(),
+		acceptedCount(),
+		rejectedCount(),
+		withdrawnCount(),
+	]);
+	return {
+		pending,
+		accepted,
+		rejected,
+		withdrawn,
+	};
 };
 
 export const getProposalRepo = async (userId: string, id: string) => {
@@ -35,6 +112,19 @@ export const getProposalRepo = async (userId: string, id: string) => {
 				{ id },
 				{ OR: [{ freelancerId: userId }, { project: { clientId: userId } }] },
 			],
+		},
+		include: {
+			project: {
+				select: {
+					title: true,
+					skills: true,
+					client: {
+						select: {
+							name: true,
+						},
+					},
+				},
+			},
 		},
 	});
 };
@@ -50,6 +140,19 @@ export const createProposalRepo = async (
 			freelancerId,
 			projectId,
 		},
+		include: {
+			project: {
+				select: {
+					title: true,
+					skills: true,
+					client: {
+						select: {
+							name: true,
+						},
+					},
+				},
+			},
+		},
 	});
 };
 
@@ -64,6 +167,19 @@ export const updateProposalRepo = async (
 			freelancerId,
 		},
 		data: proposalData,
+		include: {
+			project: {
+				select: {
+					title: true,
+					skills: true,
+					client: {
+						select: {
+							name: true,
+						},
+					},
+				},
+			},
+		},
 	});
 };
 
@@ -132,6 +248,19 @@ export const acceptProposalRepo = async (
 		const updatedProposal = await tx.proposal.update({
 			where: { id: proposalId },
 			data: { status: "ACCEPTED" },
+			include: {
+				project: {
+					select: {
+						title: true,
+						skills: true,
+						client: {
+							select: {
+								name: true,
+							},
+						},
+					},
+				},
+			},
 		});
 
 		// Update the project status to IN_PROGRESS
@@ -176,6 +305,19 @@ export const rejectProposalRepo = async (
 		const updatedProposal = await tx.proposal.update({
 			where: { id: proposalId },
 			data: { status: "REJECTED" },
+			include: {
+				project: {
+					select: {
+						title: true,
+						skills: true,
+						client: {
+							select: {
+								name: true,
+							},
+						},
+					},
+				},
+			},
 		});
 
 		return updatedProposal;

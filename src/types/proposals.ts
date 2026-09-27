@@ -14,6 +14,15 @@ export type Proposal = ProposalCreateInputs & {
 	projectId: string;
 	createdAt: Date;
 	updatedAt: Date;
+	status: string;
+	bidAmount: number;
+	project: {
+		title: string;
+		skills: string[];
+		client: {
+			name: string;
+		};
+	};
 };
 
 export type ProposalsResponse = {
@@ -26,4 +35,22 @@ export type ProposalResponse = {
 	success: boolean;
 	message: string;
 	proposal?: Proposal;
+};
+
+export type ProposalStat = {
+	status: string;
+	count: number;
+};
+
+export type ProposalStatsResponse = {
+	success: boolean;
+	message: string;
+
+	stats?: {
+		pending: number;
+		accepted: number;
+		rejected: number;
+		withdrawn: number;
+		totalCount: number;
+	};
 };

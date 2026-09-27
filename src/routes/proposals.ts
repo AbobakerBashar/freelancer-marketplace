@@ -5,6 +5,7 @@ import {
 	deleteProposal,
 	getProposal,
 	getProposalsByFreelancerId,
+	getProposalsStatesByUserId,
 	rejectProposal,
 	updateProposal,
 } from "../controllers/proposals.js";
@@ -21,12 +22,23 @@ const router = Router();
 // Get all proposals for a specific freelancer
 router.get("/my", authMiddleware, asyncHandler(getProposalsByFreelancerId));
 
+// Get all proposal states for a specific user
+router.get(
+	"/my/states",
+	authMiddleware,
+	asyncHandler(getProposalsStatesByUserId),
+);
+
 // Get a specific proposal by its ID
 router.get("/:id", authMiddleware, asyncHandler(getProposal));
 
 // Create a new proposal
 router.post(
 	"/:id",
+	(req, res, next) => {
+		console.log("Request body:", req.body);
+		next();
+	},
 	authMiddleware,
 	validate(proposalCreateSchema, "body"),
 	asyncHandler(createProposal),

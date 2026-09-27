@@ -14,7 +14,7 @@ export const getMe = async (req: Request, res: Response) => {
 		return res.status(401).json({ success: false, message: "Unauthorized" });
 
 	const user = await getMeService(userId);
-
+	console.log("User retrieved:", user); // Log the retrieved user for debugging
 	res.status(200).json({ success: true, user });
 };
 
@@ -25,14 +25,12 @@ export const register = async (
 	const user = await registerService(res, req.body);
 	const token = generateToken(res, user.id, user.role);
 
-	res
-		.status(201)
-		.json({
-			success: true,
-			message: "User registered successfully",
-			user,
-			token,
-		});
+	res.status(201).json({
+		success: true,
+		message: "User registered successfully",
+		user,
+		token,
+	});
 };
 
 export const login = async (

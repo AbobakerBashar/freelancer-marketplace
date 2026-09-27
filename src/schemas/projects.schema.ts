@@ -12,7 +12,7 @@ export const projectQuerySchema = z.object({
 	status: z
 		.preprocess(
 			(value) => (typeof value === "string" ? value.toUpperCase() : value),
-			z.enum(["OPEN", "IN_PROGRESS", "COMPLETED", "CANCELLED"]),
+			z.enum(["OPEN", "DRAFT", "IN_PROGRESS", "COMPLETED", "CANCELLED"]),
 		)
 		.optional(),
 

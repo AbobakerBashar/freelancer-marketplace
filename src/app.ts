@@ -33,4 +33,9 @@ app.use("/api/proposals", proposalsRoutes);
 // Error handling middleware
 app.use(errorMiddleware);
 
+// Not found route handler
+app.use((req, res) => {
+	res.status(404).json({ message: "Route not found" });
+});
+
 export default app;

@@ -8,6 +8,7 @@ import {
 	getProposalOwnership,
 	acceptProposalRepo,
 	rejectProposalRepo,
+	getProposalsStatsByUserIdRepo,
 } from "../repositories/proposals.js";
 import type {
 	ProposalCreateInputs,
@@ -34,6 +35,19 @@ export const getProposalsByFreelancerIdService = async (
 		...proposal,
 		bidAmount: Number(proposal.bidAmount),
 	}));
+};
+
+export const getProposalsStatsByUserIdService = async (userId: string) => {
+	const stats = await getProposalsStatsByUserIdRepo(userId);
+
+	// Calculate total count
+	const totalCount =
+		stats.pending + stats.accepted + stats.rejected + stats.withdrawn;
+
+	return {
+		...stats,
+		totalCount,
+	};
 };
 
 export const getProposalService = async (userId: string, id: string) => {
