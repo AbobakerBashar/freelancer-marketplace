@@ -21,6 +21,7 @@ export const getProposalsByProjectIdRepo = async (
 				select: {
 					title: true,
 					skills: true,
+					currency: true,
 					client: {
 						select: {
 							name: true,
@@ -42,6 +43,7 @@ export const getProposalsByFreelancerIdRepo = async (freelancerId: string) => {
 			project: {
 				select: {
 					title: true,
+					currency: true,
 					skills: true,
 					client: {
 						select: {
@@ -117,6 +119,7 @@ export const getProposalRepo = async (userId: string, id: string) => {
 			project: {
 				select: {
 					title: true,
+					currency: true,
 					skills: true,
 					client: {
 						select: {
@@ -144,6 +147,7 @@ export const createProposalRepo = async (
 			project: {
 				select: {
 					title: true,
+					currency: true,
 					skills: true,
 					client: {
 						select: {
@@ -171,6 +175,7 @@ export const updateProposalRepo = async (
 			project: {
 				select: {
 					title: true,
+					currency: true,
 					skills: true,
 					client: {
 						select: {
@@ -252,6 +257,7 @@ export const acceptProposalRepo = async (
 				project: {
 					select: {
 						title: true,
+						currency: true,
 						skills: true,
 						client: {
 							select: {
@@ -309,6 +315,7 @@ export const rejectProposalRepo = async (
 				project: {
 					select: {
 						title: true,
+						currency: true,
 						skills: true,
 						client: {
 							select: {

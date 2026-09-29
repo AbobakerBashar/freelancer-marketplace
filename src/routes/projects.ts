@@ -42,6 +42,7 @@ router.get("/:id", asyncHandler(getProjectById));
 // POST /projects   --> Create a new project
 router.post(
 	"/",
+
 	authMiddleware,
 	validate(projectCreateSchema, "body"),
 	asyncHandler(createProject),

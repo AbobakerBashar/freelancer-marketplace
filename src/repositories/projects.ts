@@ -4,7 +4,6 @@ import {
 	ProjectQuery,
 	UpdateProjectInput,
 } from "../types/projects.js";
-import { AppError } from "../utils/AppError.js";
 
 export const getProjectsRepo = async (query: ProjectQuery) => {
 	const skip =
@@ -58,10 +57,17 @@ export const getProjectsRepo = async (query: ProjectQuery) => {
 	return { projects, totalCount };
 };
 
-export const getProjectsStatsicsRepo = async () => {
-	const totalProjects = await prisma.project.count();
+export const getProjectsStatsicsRepo = async (clientId: string) => {
+	const totalProjects = await prisma.project.count({
+		where: {
+			clientId,
+		},
+	});
 
 	const status = await prisma.project.groupBy({
+		where: {
+			clientId,
+		},
 		by: ["status"],
 		_count: {
 			id: true,

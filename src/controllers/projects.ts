@@ -4,6 +4,7 @@ import type {
 	ProjectQuery,
 	ProjectResponse,
 	ProjectsResponse,
+	ProjectStatistics,
 	UpdateProjectInput,
 } from "../types/projects.ts";
 
@@ -16,6 +17,7 @@ import {
 	getProjectsStatsicsService,
 	getPopularCategoriesService,
 } from "../services/projects.js";
+import { uuid } from "zod";
 
 export const getProjects = async (
 	req: Request,
@@ -32,8 +34,20 @@ export const getProjects = async (
 	});
 };
 
-export const getProjectsStatsics = async (req: Request, res: Response) => {
-	const stats = await getProjectsStatsicsService();
+export const getProjectsStatsics = async (
+	req: Request,
+	res: Response<ProjectStatistics>,
+) => {
+	const { clientId } = req.query;
+
+	if (clientId && !uuid().validate(clientId)) {
+		return res.status(400).json({
+			success: false,
+			message: "Invalid clientId format",
+		});
+	}
+
+	const stats = await getProjectsStatsicsService(clientId as string);
 
 	res.status(200).json({
 		success: true,
@@ -88,7 +102,7 @@ export const createProject = async (
 
 export const updateProject = async (
 	req: Request<{ id: string }, {}, UpdateProjectInput>,
-	res: Response,
+	res: Response<ProjectResponse>,
 ) => {
 	const { id } = req.params;
 	const { id: userId } = req.user ?? {};

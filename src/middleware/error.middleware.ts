@@ -46,7 +46,7 @@ export const errorMiddleware = (
 	if (error instanceof AppError)
 		return res
 			.status(error.statusCode)
-			.json({ success: false, message: error.message });
+			.json({ success: false, message: error.message, errors: error.errors });
 
 	return res.status(500).json({
 		success: false,

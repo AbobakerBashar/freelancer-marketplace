@@ -11,7 +11,14 @@ import { errorMiddleware } from "./middleware/error.middleware.js";
 const app = express();
 
 // Middlewares
-app.use(cors());
+
+app.use(
+	cors({
+		origin: process.env.CLIENT_URL,
+		credentials: true,
+		methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+	}),
+);
 app.use(express.json());
 app.use(cookieParser());
 

@@ -22,7 +22,11 @@ export const getProjectsService = async (query: ProjectQuery) => {
 	const totalPages = Math.ceil(totalCount / query.limit!);
 
 	return {
-		projects,
+		projects: projects.map((project) => ({
+			...project,
+			budgetMin: project.budgetMin ? Number(project.budgetMin) : null,
+			budgetMax: project.budgetMax ? Number(project.budgetMax) : null,
+		})),
 		pagination: {
 			currentPage: query.page!,
 			limit: query.limit!,
@@ -32,8 +36,16 @@ export const getProjectsService = async (query: ProjectQuery) => {
 	};
 };
 
-export const getProjectsStatsicsService = async () => {
-	return await getProjectsStatsicsRepo();
+export const getProjectsStatsicsService = async (clientId: string) => {
+	const stats = await getProjectsStatsicsRepo(clientId);
+	const formatedStats = stats.status.map((stat) => ({
+		status: stat.status,
+		count: stat._count.id,
+	}));
+	return {
+		...stats,
+		status: formatedStats,
+	};
 };
 
 export const getProjectByIdService = async (id: string) => {
@@ -41,7 +53,11 @@ export const getProjectByIdService = async (id: string) => {
 	if (!project) {
 		throw new AppError(404, "Project not found");
 	}
-	return project;
+	return {
+		...project,
+		budgetMin: project.budgetMin ? Number(project.budgetMin) : null,
+		budgetMax: project.budgetMax ? Number(project.budgetMax) : null,
+	};
 };
 
 export const getPopularCategoriesService = async () => {
@@ -51,6 +67,7 @@ export const getPopularCategoriesService = async () => {
 		count: category._count.id,
 	}));
 };
+
 export const createProjectService = async (
 	id: string,
 	projectData: CreateProjectInput,
@@ -67,30 +84,44 @@ export const createProjectService = async (
 		(projectData.duration && !projectData.durationUnit) ||
 		(!projectData.duration && projectData.durationUnit)
 	) {
-		throw new AppError(
-			400,
-			"Duration and duration unit must be provided together",
-		);
-	}
+		const key = projectData.duration ? "durationUnit" : "duration";
+		const errors: Record<string, string> = {
+			[key]: "Duration and duration unit must be provided together",
+		};
 
+		throw new AppError(400, "Validation error", errors);
+	}
 	// Check if budgetMin is less than or equal to budgetMax
 	if (
 		projectData.budgetMin &&
 		projectData.budgetMax &&
 		projectData.budgetMin > projectData.budgetMax
 	) {
+		const errors: Record<string, string> = {
+			budgetMin: "Budget min must be less than or equal to budget max",
+		};
+
 		throw new AppError(
 			400,
 			"Budget min must be less than or equal to budget max",
+			errors,
 		);
 	}
 
 	// Check if deadline is in the future
 	if (projectData.deadline && projectData.deadline <= new Date()) {
-		throw new AppError(400, "Deadline must be a future date");
+		const errors: Record<string, string> = {
+			deadline: "Deadline must be a future date",
+		};
+		throw new AppError(400, "Validation error", errors);
 	}
 
-	return await createProjectRepo(id, projectData);
+	const project = await createProjectRepo(id, projectData);
+	return {
+		...project,
+		budgetMin: project.budgetMin ? Number(project.budgetMin) : null,
+		budgetMax: project.budgetMax ? Number(project.budgetMax) : null,
+	};
 };
 
 export const updateProjectService = async (
@@ -123,10 +154,12 @@ export const updateProjectService = async (
 		(updateData.duration && !updateData.durationUnit) ||
 		(!updateData.duration && updateData.durationUnit)
 	) {
-		throw new AppError(
-			400,
-			"Duration and duration unit must be provided together",
-		);
+		const key = updateData.duration ? "durationUnit" : "duration";
+		const errors: Record<string, string> = {
+			[key]: "Duration and duration unit must be provided together",
+		};
+
+		throw new AppError(400, "Validation error", errors);
 	}
 
 	// Check if budgetMin is less than or equal to budgetMax
@@ -135,15 +168,19 @@ export const updateProjectService = async (
 		updateData.budgetMax &&
 		updateData.budgetMin > updateData.budgetMax
 	) {
-		throw new AppError(
-			400,
-			"Budget min must be less than or equal to budget max",
-		);
+		const errors: Record<string, string> = {
+			budgetMin: "Budget min must be less than or equal to budget max",
+		};
+
+		throw new AppError(400, "Validation error", errors);
 	}
 
 	// Check if deadline is in the future
 	if (updateData.deadline && updateData.deadline <= new Date()) {
-		throw new AppError(400, "Deadline must be a future date");
+		const errors: Record<string, string> = {
+			deadline: "Deadline must be a future date",
+		};
+		throw new AppError(400, "Validation error", errors);
 	}
 
 	const project = await updateProjectRepo(userId, id, updateData);
@@ -155,7 +192,11 @@ export const updateProjectService = async (
 		);
 	}
 
-	return project;
+	return {
+		...project,
+		budgetMin: project.budgetMin ? Number(project.budgetMin) : null,
+		budgetMax: project.budgetMax ? Number(project.budgetMax) : null,
+	};
 };
 
 export const deleteProjectService = async (userId: string, id: string) => {
