@@ -14,7 +14,7 @@ export const getMe = async (req: Request, res: Response) => {
 		return res.status(401).json({ success: false, message: "Unauthorized" });
 
 	const user = await getMeService(userId);
-	console.log("User retrieved:", user); // Log the retrieved user for debugging
+
 	res.status(200).json({ success: true, user });
 };
 

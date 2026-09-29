@@ -30,15 +30,11 @@ router.get(
 );
 
 // Get a specific proposal by its ID
-router.get("/:id", authMiddleware, asyncHandler(getProposal));
+router.get("/my/:id", authMiddleware, asyncHandler(getProposal));
 
 // Create a new proposal
 router.post(
-	"/:id",
-	(req, res, next) => {
-		console.log("Request body:", req.body);
-		next();
-	},
+	"/my/:id",
 	authMiddleware,
 	validate(proposalCreateSchema, "body"),
 	asyncHandler(createProposal),

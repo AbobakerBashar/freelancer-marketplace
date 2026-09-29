@@ -18,6 +18,7 @@ export type Proposal = ProposalCreateInputs & {
 	bidAmount: number;
 	project: {
 		title: string;
+		currency: string;
 		skills: string[];
 		client: {
 			name: string;

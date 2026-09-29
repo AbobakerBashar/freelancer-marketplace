@@ -35,8 +35,8 @@ export type Project = {
 	skills: string[];
 
 	budgetType: BudgetType;
-	budgetMin: Decimal | null;
-	budgetMax: Decimal | null;
+	budgetMin: number | null;
+	budgetMax: number | null;
 	currency: string;
 
 	duration: number | null;
@@ -93,3 +93,15 @@ export type ProjectQuery = z.infer<typeof projectQuerySchema>;
 export type CreateProjectInput = z.infer<typeof projectCreateSchema>;
 
 export type UpdateProjectInput = z.infer<typeof projectUpdateSchema>;
+
+export type ProjectStatistics = {
+	success: boolean;
+	message?: string;
+	stats?: {
+		totalProjects: number;
+		status: {
+			status: ProjectStatus;
+			count: number;
+		}[];
+	};
+};
