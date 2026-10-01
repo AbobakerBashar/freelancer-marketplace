@@ -8,6 +8,7 @@ import {
 	getProposalsStatesByUserId,
 	rejectProposal,
 	updateProposal,
+	withdraw,
 } from "../controllers/proposals.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { validate } from "../middleware/validate.js";
@@ -30,11 +31,11 @@ router.get(
 );
 
 // Get a specific proposal by its ID
-router.get("/my/:id", authMiddleware, asyncHandler(getProposal));
+router.get("/:id", asyncHandler(getProposal));
 
 // Create a new proposal
 router.post(
-	"/my/:id",
+	"/:id",
 	authMiddleware,
 	validate(proposalCreateSchema, "body"),
 	asyncHandler(createProposal),
@@ -56,5 +57,8 @@ router.post("/:id/accept", authMiddleware, asyncHandler(acceptProposal));
 
 // Reject a proposal
 router.post("/:id/reject", authMiddleware, asyncHandler(rejectProposal));
+
+// Withdraw
+router.post("/:id/withdraw", authMiddleware, asyncHandler(withdraw));
 
 export default router;

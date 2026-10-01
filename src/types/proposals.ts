@@ -19,6 +19,9 @@ export type Proposal = ProposalCreateInputs & {
 	project: {
 		title: string;
 		currency: string;
+		description: string;
+		budgetMax: number;
+		budgetMin: number;
 		skills: string[];
 		client: {
 			name: string;
@@ -54,4 +57,13 @@ export type ProposalStatsResponse = {
 		withdrawn: number;
 		totalCount: number;
 	};
+};
+
+export type ProjectsProposalsCountRes = {
+	success: boolean;
+	message: string;
+	proposalsCounts?: {
+		projectId: string;
+		proposalsCount: number;
+	}[];
 };

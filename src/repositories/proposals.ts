@@ -22,6 +22,9 @@ export const getProposalsByProjectIdRepo = async (
 					title: true,
 					skills: true,
 					currency: true,
+					description: true,
+					budgetMax: true,
+					budgetMin: true,
 					client: {
 						select: {
 							name: true,
@@ -44,6 +47,9 @@ export const getProposalsByFreelancerIdRepo = async (freelancerId: string) => {
 				select: {
 					title: true,
 					currency: true,
+					description: true,
+					budgetMax: true,
+					budgetMin: true,
 					skills: true,
 					client: {
 						select: {
@@ -52,6 +58,20 @@ export const getProposalsByFreelancerIdRepo = async (freelancerId: string) => {
 					},
 				},
 			},
+		},
+	});
+};
+
+export const getProjectsProposalsCount = async (clientId?: string) => {
+	return await prisma.proposal.groupBy({
+		where: {
+			project: {
+				clientId,
+			},
+		},
+		by: ["projectId"],
+		_count: {
+			id: true,
 		},
 	});
 };
@@ -107,13 +127,13 @@ export const getProposalsStatsByUserIdRepo = async (userId: string) => {
 	};
 };
 
-export const getProposalRepo = async (userId: string, id: string) => {
+export const getProposalRepo = async (
+	proposalId: string,
+	freelancerId: string | undefined,
+) => {
 	return await prisma.proposal.findFirst({
 		where: {
-			AND: [
-				{ id },
-				{ OR: [{ freelancerId: userId }, { project: { clientId: userId } }] },
-			],
+			AND: [{ id: proposalId }, { freelancerId }],
 		},
 		include: {
 			project: {
@@ -121,6 +141,9 @@ export const getProposalRepo = async (userId: string, id: string) => {
 					title: true,
 					currency: true,
 					skills: true,
+					description: true,
+					budgetMax: true,
+					budgetMin: true,
 					client: {
 						select: {
 							name: true,
@@ -137,26 +160,56 @@ export const createProposalRepo = async (
 	projectId: string,
 	proposalData: ProposalCreateInputs,
 ) => {
-	return await prisma.proposal.create({
-		data: {
-			...proposalData,
-			freelancerId,
-			projectId,
-		},
-		include: {
-			project: {
-				select: {
-					title: true,
-					currency: true,
-					skills: true,
-					client: {
-						select: {
-							name: true,
+	return await prisma.$transaction(async (tx) => {
+		tx.$executeRaw`SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;`;
+
+		// Lock the project row to prevent concurrent modifications
+		await tx.$executeRaw`SELECT status FROM "Project" WHERE id = ${projectId} FOR UPDATE;`;
+
+		// Fetch the project to check its status
+		const project = await tx.project.findUnique({
+			where: { id: projectId },
+			select: { status: true },
+		});
+
+		// Check if the project exists
+		if (!project) {
+			throw new AppError(404, "Project not found.");
+		}
+
+		// Check if the project is OPEN or DRAFT
+		if (project.status !== "OPEN" && project.status !== "DRAFT") {
+			throw new AppError(
+				400,
+				`Cannot create proposal for a project that is ${project.status}`,
+			);
+		}
+
+		// Create the proposal
+		return await tx.proposal.create({
+			data: {
+				...proposalData,
+				freelancerId,
+				projectId,
+			},
+			include: {
+				project: {
+					select: {
+						title: true,
+						currency: true,
+						skills: true,
+						description: true,
+						budgetMax: true,
+						budgetMin: true,
+						client: {
+							select: {
+								name: true,
+							},
 						},
 					},
 				},
 			},
-		},
+		});
 	});
 };
 
@@ -177,6 +230,9 @@ export const updateProposalRepo = async (
 					title: true,
 					currency: true,
 					skills: true,
+					description: true,
+					budgetMax: true,
+					budgetMin: true,
 					client: {
 						select: {
 							name: true,
@@ -259,6 +315,9 @@ export const acceptProposalRepo = async (
 						title: true,
 						currency: true,
 						skills: true,
+						description: true,
+						budgetMax: true,
+						budgetMin: true,
 						client: {
 							select: {
 								name: true,
@@ -317,6 +376,9 @@ export const rejectProposalRepo = async (
 						title: true,
 						currency: true,
 						skills: true,
+						description: true,
+						budgetMax: true,
+						budgetMin: true,
 						client: {
 							select: {
 								name: true,
@@ -328,5 +390,46 @@ export const rejectProposalRepo = async (
 		});
 
 		return updatedProposal;
+	});
+};
+
+export const withdrawRepo = async (
+	freelancerId: string,
+	proposalId: string,
+) => {
+	const proposal = await prisma.proposal.findUnique({
+		where: { id: proposalId },
+		select: { status: true },
+	});
+
+	if (!proposal) throw new AppError(404, "Proposal not found");
+	// Check if allowed to withdraw
+	if (proposal.status !== "PENDING")
+		throw new AppError(
+			400,
+			`Cannot withdraw from proposal that is ${proposal.status}`,
+		);
+
+	// Withdraw
+	return await prisma.proposal.update({
+		where: { id: proposalId, freelancerId },
+		data: { status: "WITHDRAWN" },
+		include: {
+			project: {
+				select: {
+					title: true,
+					currency: true,
+					skills: true,
+					description: true,
+					budgetMax: true,
+					budgetMin: true,
+					client: {
+						select: {
+							name: true,
+						},
+					},
+				},
+			},
+		},
 	});
 };

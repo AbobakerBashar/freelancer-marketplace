@@ -8,6 +8,7 @@ import {
 	getProjectsStatsicsRepo,
 	updateProjectRepo,
 	getPopularCategoriesRepo,
+	getProjectStatusRepo,
 } from "../repositories/projects.js";
 import type {
 	CreateProjectInput,
@@ -144,6 +145,11 @@ export const updateProjectService = async (
 		);
 	}
 
+	// Check if the project is allowed to be updated based on its status
+	if (existingProject.status !== "DRAFT" && existingProject.status !== "OPEN") {
+		throw new AppError(403, "Project is not allowed to be updated");
+	}
+
 	const updateData: UpdateProjectInput = {
 		...existingProject,
 		...projectData,
@@ -199,7 +205,10 @@ export const updateProjectService = async (
 	};
 };
 
-export const deleteProjectService = async (userId: string, id: string) => {
+export const deleteProjectService = async (
+	userId: string,
+	projectId: string,
+) => {
 	// Check if user is active and verified
 	const isVerifiedAndActive = await isVerifiedAndIsActiveUser(userId);
 
@@ -207,13 +216,19 @@ export const deleteProjectService = async (userId: string, id: string) => {
 		throw new AppError(403, "User is not active or verified");
 	}
 
-	const project = await deleteProjectRepo(userId, id);
+	const project = await getProjectStatusRepo(projectId);
 
+	// Check if is not exist throw an error
 	if (!project) {
 		throw new AppError(
 			404,
 			"Project not found or you do not have permission to delete it",
 		);
 	}
-	return project;
+
+	// Check is it allowed to delete
+	if (project.status === "IN_PROGRESS" || project.status === "COMPLETED")
+		throw new AppError(400, `Cannot delete project that is ${project.status}`);
+
+	return await deleteProjectRepo(userId, projectId);
 };

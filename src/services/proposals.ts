@@ -9,6 +9,8 @@ import {
 	acceptProposalRepo,
 	rejectProposalRepo,
 	getProposalsStatsByUserIdRepo,
+	getProjectsProposalsCount,
+	withdrawRepo,
 } from "../repositories/proposals.js";
 import type {
 	ProposalCreateInputs,
@@ -23,6 +25,11 @@ export const getProposalsByProjectIdService = async (
 	const proposals = await getProposalsByProjectIdRepo(projectId, clientId);
 	return proposals.map((proposal) => ({
 		...proposal,
+		project: {
+			...proposal.project,
+			budgetMax: Number(proposal.project.budgetMax || ""),
+			budgetMin: Number(proposal.project.budgetMin || ""),
+		},
 		bidAmount: Number(proposal.bidAmount),
 	}));
 };
@@ -33,8 +40,24 @@ export const getProposalsByFreelancerIdService = async (
 	const proposals = await getProposalsByFreelancerIdRepo(freelancerId);
 	return proposals.map((proposal) => ({
 		...proposal,
+		project: {
+			...proposal.project,
+			budgetMax: Number(proposal.project.budgetMax || ""),
+			budgetMin: Number(proposal.project.budgetMin || ""),
+		},
 		bidAmount: Number(proposal.bidAmount),
 	}));
+};
+
+export const getProjectsProposalsCountService = async (clientId?: string) => {
+	const proposalsCounts = await getProjectsProposalsCount(clientId);
+
+	const formattedCounts = proposalsCounts.map((count) => ({
+		projectId: count.projectId,
+		proposalsCount: count._count.id,
+	}));
+
+	return formattedCounts;
 };
 
 export const getProposalsStatsByUserIdService = async (userId: string) => {
@@ -50,17 +73,26 @@ export const getProposalsStatsByUserIdService = async (userId: string) => {
 	};
 };
 
-export const getProposalService = async (userId: string, id: string) => {
-	const proposal = await getProposalRepo(userId, id);
+export const getProposalService = async (
+	proposalId: string,
+	freelancerId: string | undefined,
+) => {
+	const proposal = await getProposalRepo(proposalId, freelancerId);
 
 	if (!proposal)
 		throw new AppError(
 			404,
 			"Proposal not found or you are not authorized to view it",
 		);
+
 	return {
 		...proposal,
 		bidAmount: Number(proposal.bidAmount),
+		project: {
+			...proposal.project,
+			budgetMax: Number(proposal.project.budgetMax || ""),
+			budgetMin: Number(proposal.project.budgetMin || ""),
+		},
 	};
 };
 
@@ -76,6 +108,11 @@ export const createProposalService = async (
 	);
 	return {
 		...proposal,
+		project: {
+			...proposal.project,
+			budgetMax: Number(proposal.project.budgetMax || ""),
+			budgetMin: Number(proposal.project.budgetMin || ""),
+		},
 		bidAmount: Number(proposal.bidAmount),
 	};
 };
@@ -93,6 +130,11 @@ export const updateProposalService = async (
 
 	return {
 		...proposal,
+		project: {
+			...proposal.project,
+			budgetMax: Number(proposal.project.budgetMax || ""),
+			budgetMin: Number(proposal.project.budgetMin || ""),
+		},
 		bidAmount: Number(proposal.bidAmount),
 	};
 };
@@ -120,6 +162,11 @@ export const acceptProposalService = async (
 	const updatedProposal = await acceptProposalRepo(clientId, proposalId);
 	return {
 		...updatedProposal,
+		project: {
+			...updatedProposal.project,
+			budgetMax: Number(updatedProposal.project.budgetMax || ""),
+			budgetMin: Number(updatedProposal.project.budgetMin || ""),
+		},
 		bidAmount: Number(updatedProposal.bidAmount),
 	};
 };
@@ -131,6 +178,28 @@ export const rejectProposalService = async (
 	const updatedProposal = await rejectProposalRepo(clientId, proposalId);
 	return {
 		...updatedProposal,
+		project: {
+			...updatedProposal.project,
+			budgetMax: Number(updatedProposal.project.budgetMax || ""),
+			budgetMin: Number(updatedProposal.project.budgetMin || ""),
+		},
 		bidAmount: Number(updatedProposal.bidAmount),
+	};
+};
+
+export const withdrawService = async (
+	freelancerId: string,
+	proposalId: string,
+) => {
+	const proposal = await withdrawRepo(freelancerId, proposalId);
+
+	return {
+		...proposal,
+		project: {
+			...proposal.project,
+			budgetMax: Number(proposal.project.budgetMax || ""),
+			budgetMin: Number(proposal.project.budgetMin || ""),
+		},
+		bidAmount: Number(proposal.bidAmount),
 	};
 };

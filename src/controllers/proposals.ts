@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import type {
+	ProjectsProposalsCountRes,
 	ProposalCreateInputs,
 	ProposalResponse,
 	ProposalsResponse,
@@ -16,6 +17,8 @@ import {
 	acceptProposalService,
 	rejectProposalService,
 	getProposalsStatsByUserIdService,
+	getProjectsProposalsCountService,
+	withdrawService,
 } from "../services/proposals.js";
 
 export const getProposalsByProjectId = async (
@@ -68,13 +71,27 @@ export const getProposal = async (
 	res: Response<ProposalResponse>,
 ) => {
 	const proposalId = req.params.id;
-	const userId = req.user?.id;
+	const freelancerId = req.query?.freelancerId as string | undefined;
 
-	const proposal = await getProposalService(userId!, proposalId);
+	const proposal = await getProposalService(proposalId, freelancerId);
 	res.status(200).json({
 		success: true,
 		message: "Proposal fetched successfully",
 		proposal,
+	});
+};
+
+export const getProjectsProposalsCount = async (
+	req: Request,
+	res: Response<ProjectsProposalsCountRes>,
+) => {
+	const clientId = req.query?.clientId as string | undefined;
+	const proposalsCounts = await getProjectsProposalsCountService(clientId);
+
+	res.status(200).json({
+		success: true,
+		message: "Proposals counts fetched successfully",
+		proposalsCounts,
 	});
 };
 
@@ -169,6 +186,22 @@ export const rejectProposal = async (
 	res.status(200).json({
 		success: true,
 		message: "Proposal rejected successfully",
+		proposal,
+	});
+};
+
+export const withdraw = async (
+	req: Request<{ id: string }>,
+	res: Response<ProposalResponse>,
+) => {
+	const freelancerId = req.user?.id;
+	const proposalId = req.params.id;
+
+	const proposal = await withdrawService(freelancerId!, proposalId);
+
+	res.status(200).json({
+		success: true,
+		message: "You successfully withdrawn!",
 		proposal,
 	});
 };

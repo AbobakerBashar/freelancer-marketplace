@@ -124,6 +124,7 @@ export const existsProjectWithId = async (
 	const project = await prisma.project.findUnique({
 		where: { id, clientId },
 		select: {
+			status: true,
 			budgetMin: true,
 			budgetMax: true,
 			duration: true,
@@ -149,6 +150,15 @@ export const updateProjectRepo = async (
 	return await prisma.project.update({
 		where: { id, clientId: userId },
 		data: projectData,
+	});
+};
+
+export const getProjectStatusRepo = async (projectId: string) => {
+	return await prisma.project.findUnique({
+		where: { id: projectId },
+		select: {
+			status: true,
+		},
 	});
 };
 
