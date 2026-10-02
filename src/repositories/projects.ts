@@ -1,4 +1,5 @@
 import prisma from "../config/prisma.js";
+import { ProposalStatus } from "../generated/prisma/enums.js";
 import {
 	CreateProjectInput,
 	ProjectQuery,
@@ -55,6 +56,55 @@ export const getProjectsRepo = async (query: ProjectQuery) => {
 	});
 
 	return { projects, totalCount };
+};
+
+export const getActiveProjectsRepo = async (userId: string, role: string) => {
+	const roleWhereClause =
+		role === "CLIENT"
+			? { clientId: userId }
+			: {
+					proposals: {
+						some: { status: ProposalStatus.ACCEPTED, freelancerId: userId },
+					},
+				};
+
+	const projects = await prisma.project.findMany({
+		where: {
+			status: "IN_PROGRESS",
+			...roleWhereClause,
+		},
+		orderBy: {
+			createdAt: "desc",
+		},
+		omit: {
+			clientId: true,
+		},
+		include: {
+			client: {
+				select: {
+					id: true,
+					name: true,
+					email: true,
+				},
+			},
+			proposals: {
+				where: {
+					status: ProposalStatus.ACCEPTED,
+				},
+				select: {
+					freelancer: {
+						select: {
+							id: true,
+							name: true,
+							email: true,
+						},
+					},
+				},
+			},
+		},
+	});
+
+	return projects;
 };
 
 export const getProjectsStatsicsRepo = async (clientId: string) => {

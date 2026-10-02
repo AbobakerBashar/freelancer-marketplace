@@ -1,5 +1,6 @@
 import type { Request, Response } from "express";
 import type {
+	ActiveProjectsResponse,
 	CreateProjectInput,
 	ProjectQuery,
 	ProjectResponse,
@@ -16,6 +17,7 @@ import {
 	deleteProjectService,
 	getProjectsStatsicsService,
 	getPopularCategoriesService,
+	getActiveProjectsService,
 } from "../services/projects.js";
 import { uuid } from "zod";
 
@@ -34,6 +36,22 @@ export const getProjects = async (
 	});
 };
 
+export const getActiveProjects = async (
+	req: Request,
+	res: Response<ActiveProjectsResponse>,
+) => {
+	const { id, role } = req.user ?? {};
+
+	if (!id || !role)
+		return res.status(401).json({ success: false, message: "Unauthorized" });
+
+	const projects = await getActiveProjectsService(id, role);
+
+	res.status(200).json({
+		success: true,
+		projects,
+	});
+};
 export const getProjectsStatsics = async (
 	req: Request,
 	res: Response<ProjectStatistics>,

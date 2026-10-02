@@ -9,8 +9,10 @@ import {
 	updateProjectRepo,
 	getPopularCategoriesRepo,
 	getProjectStatusRepo,
+	getActiveProjectsRepo,
 } from "../repositories/projects.js";
 import type {
+	ActiveProject,
 	CreateProjectInput,
 	ProjectQuery,
 	UpdateProjectInput,
@@ -35,6 +37,22 @@ export const getProjectsService = async (query: ProjectQuery) => {
 			totalPages,
 		},
 	};
+};
+
+export const getActiveProjectsService = async (
+	userid: string,
+	role: string,
+): Promise<ActiveProject[]> => {
+	const projects = await getActiveProjectsRepo(userid, role);
+
+	const activeProjects = projects.map((project) => ({
+		...project,
+		budgetMin: project.budgetMin ? Number(project.budgetMin) : 0,
+		budgetMax: project.budgetMax ? Number(project.budgetMax) : 0,
+		freelancer: project.proposals[0]?.freelancer || undefined,
+		proposals: undefined, // Remove proposals from the response
+	}));
+	return activeProjects;
 };
 
 export const getProjectsStatsicsService = async (clientId: string) => {

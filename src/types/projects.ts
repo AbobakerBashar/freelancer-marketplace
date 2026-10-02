@@ -105,3 +105,23 @@ export type ProjectStatistics = {
 		}[];
 	};
 };
+
+export interface ActiveProject extends Project {
+	client: {
+		id: string;
+		name: string;
+		email: string;
+	};
+
+	freelancer?: {
+		id: string;
+		name: string;
+		email: string;
+	};
+}
+
+export type ActiveProjectsResponse = {
+	success: boolean;
+	message?: string;
+	projects?: ActiveProject[];
+};
