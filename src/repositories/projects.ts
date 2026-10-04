@@ -59,26 +59,15 @@ export const getProjectsRepo = async (query: ProjectQuery) => {
 };
 
 export const getActiveProjectsRepo = async (userId: string, role: string) => {
-	const roleWhereClause =
-		role === "CLIENT"
-			? { clientId: userId }
-			: {
-					proposals: {
-						some: { status: ProposalStatus.ACCEPTED, freelancerId: userId },
-					},
-				};
-
 	const projects = await prisma.project.findMany({
 		where: {
 			status: "IN_PROGRESS",
-			...roleWhereClause,
+			OR: [{ freelancerId: userId }, { clientId: userId }],
 		},
 		orderBy: {
 			createdAt: "desc",
 		},
-		omit: {
-			clientId: true,
-		},
+
 		include: {
 			client: {
 				select: {
@@ -87,18 +76,11 @@ export const getActiveProjectsRepo = async (userId: string, role: string) => {
 					email: true,
 				},
 			},
-			proposals: {
-				where: {
-					status: ProposalStatus.ACCEPTED,
-				},
+			freelancer: {
 				select: {
-					freelancer: {
-						select: {
-							id: true,
-							name: true,
-							email: true,
-						},
-					},
+					id: true,
+					name: true,
+					email: true,
 				},
 			},
 		},
@@ -217,6 +199,42 @@ export const deleteProjectRepo = async (userId: string, id: string) => {
 		where: { id, clientId: userId },
 		select: {
 			title: true,
+		},
+	});
+};
+
+export const getProjectWorkspaceRepo = async (
+	projectId: string,
+	userId: string,
+) => {
+	return await prisma.project.findUnique({
+		where: {
+			id: projectId,
+			OR: [
+				{ clientId: userId },
+				{ proposals: { some: { freelancerId: userId } } },
+			],
+		},
+		include: {
+			client: {
+				select: {
+					id: true,
+					name: true,
+					email: true,
+					avatarUrl: true,
+				},
+			},
+			freelancer: {
+				select: {
+					id: true,
+					name: true,
+					email: true,
+					avatarUrl: true,
+				},
+			},
+			proposals: {
+				where: { status: ProposalStatus.ACCEPTED },
+			},
 		},
 	});
 };

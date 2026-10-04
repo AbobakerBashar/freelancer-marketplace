@@ -6,6 +6,8 @@ import {
 	projectUpdateSchema,
 } from "../schemas/projects.schema.js";
 import type { z } from "zod";
+import { User } from "./auth.js";
+import { Proposal } from "./proposals.js";
 
 type BudgetType = "FIXED" | "HOURLY";
 
@@ -107,21 +109,25 @@ export type ProjectStatistics = {
 };
 
 export interface ActiveProject extends Project {
-	client: {
-		id: string;
-		name: string;
-		email: string;
-	};
+	client: Partial<User>;
 
-	freelancer?: {
-		id: string;
-		name: string;
-		email: string;
-	};
+	freelancer: Partial<User> | null;
 }
 
 export type ActiveProjectsResponse = {
 	success: boolean;
 	message?: string;
 	projects?: ActiveProject[];
+};
+
+export type WorkspaceResponse = {
+	success: boolean;
+	message?: string;
+	workspace?: {
+		project: Project;
+		client: Partial<User>;
+		freelancer: Partial<User> | null;
+		proposal: Proposal | null;
+		currentUserRole: "CLIENT" | "FREELANCER";
+	};
 };

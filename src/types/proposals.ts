@@ -16,6 +16,9 @@ export type Proposal = ProposalCreateInputs & {
 	updatedAt: Date;
 	status: string;
 	bidAmount: number;
+};
+
+export type ProposalWithProject = Proposal & {
 	project: {
 		title: string;
 		currency: string;
@@ -32,13 +35,13 @@ export type Proposal = ProposalCreateInputs & {
 export type ProposalsResponse = {
 	success: boolean;
 	message: string;
-	proposals?: Proposal[];
+	proposals?: ProposalWithProject[];
 };
 
 export type ProposalResponse = {
 	success: boolean;
 	message: string;
-	proposal?: Proposal;
+	proposal?: ProposalWithProject;
 };
 
 export type ProposalStat = {

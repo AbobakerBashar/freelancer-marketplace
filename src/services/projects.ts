@@ -10,6 +10,7 @@ import {
 	getPopularCategoriesRepo,
 	getProjectStatusRepo,
 	getActiveProjectsRepo,
+	getProjectWorkspaceRepo,
 } from "../repositories/projects.js";
 import type {
 	ActiveProject,
@@ -49,8 +50,7 @@ export const getActiveProjectsService = async (
 		...project,
 		budgetMin: project.budgetMin ? Number(project.budgetMin) : 0,
 		budgetMax: project.budgetMax ? Number(project.budgetMax) : 0,
-		freelancer: project.proposals[0]?.freelancer || undefined,
-		proposals: undefined, // Remove proposals from the response
+		freelancer: project.freelancer,
 	}));
 	return activeProjects;
 };
@@ -249,4 +249,44 @@ export const deleteProjectService = async (
 		throw new AppError(400, `Cannot delete project that is ${project.status}`);
 
 	return await deleteProjectRepo(userId, projectId);
+};
+
+export const getProjectWorkspaceByIdService = async (
+	projectId: string,
+	userId: string,
+) => {
+	const project = await getProjectWorkspaceRepo(projectId, userId);
+
+	if (!project) {
+		throw new AppError(
+			404,
+			"Project not found or you do not have permission to view it",
+		);
+	}
+
+	const hasProposals = project.proposals && project.proposals.length > 0;
+
+	const proposal = hasProposals
+		? {
+				...project.proposals[0],
+				bidAmount: Number(project.proposals[0].bidAmount),
+			}
+		: null;
+
+	const workspace = {
+		project: {
+			...project,
+			client: undefined,
+			freelancer: undefined,
+			proposals: undefined,
+
+			budgetMin: project.budgetMin ? Number(project.budgetMin) : null,
+			budgetMax: project.budgetMax ? Number(project.budgetMax) : null,
+		},
+		client: project.client,
+		proposal,
+		freelancer: project.freelancer || null,
+	};
+
+	return workspace;
 };

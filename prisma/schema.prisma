@@ -34,8 +34,9 @@ model User {
   // skills       UserSkill[]
   // messagesSent Message[] @relation("SentMessages")
   // messagesReceived Message[] @relation("ReceivedMessages")
-  projects  Project[]
-  proposals Proposal[]
+  proposals          Proposal[]
+  clientProjects     Project[]  @relation("ClientProjects")
+  freelancerProjects Project[]  @relation("FreelancerProjects")
 }
 
 enum UserRole {
@@ -49,7 +50,11 @@ model Project {
 
   // Client who posted the project
   clientId String @db.Uuid
-  client   User   @relation(fields: [clientId], references: [id])
+  client   User   @relation("ClientProjects", fields: [clientId], references: [id])
+
+  // Freelancer who is assigned to the project (if any)
+  freelancerId String? @db.Uuid
+  freelancer   User?   @relation("FreelancerProjects", fields: [freelancerId], references: [id])
 
   // Basic information
   title       String
@@ -79,6 +84,7 @@ model Project {
 
   // Relations
   proposals Proposal[]
+  userId    String?    @db.Uuid
 
   @@unique([title, clientId, category])
   @@index([clientId])

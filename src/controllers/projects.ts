@@ -7,6 +7,7 @@ import type {
 	ProjectsResponse,
 	ProjectStatistics,
 	UpdateProjectInput,
+	WorkspaceResponse,
 } from "../types/projects.ts";
 
 import {
@@ -18,6 +19,7 @@ import {
 	getProjectsStatsicsService,
 	getPopularCategoriesService,
 	getActiveProjectsService,
+	getProjectWorkspaceByIdService,
 } from "../services/projects.js";
 import { uuid } from "zod";
 
@@ -149,5 +151,24 @@ export const deleteProject = async (
 	res.status(200).json({
 		success: true,
 		message: `Project '${project.title}' deleted successfully`,
+	});
+};
+
+export const getProjectWorkspaceById = async (
+	req: Request<{ id: string }>,
+	res: Response<WorkspaceResponse>,
+) => {
+	const { id: projectId } = req.params;
+	const { id: userId, role } = req.user ?? {};
+
+	console.log("User ID:", req.user);
+	const workspace = await getProjectWorkspaceByIdService(projectId, userId!);
+
+	res.status(200).json({
+		success: true,
+		workspace: {
+			...workspace,
+			currentUserRole: role as "CLIENT" | "FREELANCER",
+		},
 	});
 };

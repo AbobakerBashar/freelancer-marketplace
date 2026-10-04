@@ -8,6 +8,7 @@ import {
 	getProjectsStatsics,
 	getPopularCategories,
 	getActiveProjects,
+	getProjectWorkspaceById,
 } from "../controllers/projects.js";
 
 import { asyncHandler } from "../utils/async-handler.js";
@@ -46,8 +47,20 @@ router.get("/popular-categories", asyncHandler(getPopularCategories));
 // Get projects proposals count
 router.get("/proposals-count", asyncHandler(getProjectsProposalsCount));
 
+/*
+/Get all proposals for a specific project
+*/
+router.get("/:id/proposals", asyncHandler(getProposalsByProjectId));
+
 // GET /projects/:id  --> Get project by ID
 router.get("/:id", asyncHandler(getProjectById));
+
+// GET /projects/:id/workspace  --> Get workspace for a specific project
+router.get(
+	"/:id/workspace",
+	authMiddleware,
+	asyncHandler(getProjectWorkspaceById),
+);
 
 // POST /projects   --> Create a new project
 router.post(
@@ -68,10 +81,5 @@ router.put(
 
 // DELETE /projects/:id   --> Delete a project by ID
 router.delete("/:id", authMiddleware, asyncHandler(deleteProject));
-
-/*
-/Get all proposals for a specific project
-*/
-router.get("/:id/proposals", asyncHandler(getProposalsByProjectId));
 
 export default router;
