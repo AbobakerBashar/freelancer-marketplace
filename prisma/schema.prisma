@@ -37,6 +37,9 @@ model User {
   proposals          Proposal[]
   clientProjects     Project[]  @relation("ClientProjects")
   freelancerProjects Project[]  @relation("FreelancerProjects")
+
+  conversationParticipants ConversationParticipant[]
+  messages                 Message[]
 }
 
 enum UserRole {
@@ -83,8 +86,9 @@ model Project {
   updatedAt DateTime  @updatedAt
 
   // Relations
-  proposals Proposal[]
-  userId    String?    @db.Uuid
+  proposals     Proposal[]
+  userId        String?        @db.Uuid
+  conversations Conversation[]
 
   @@unique([title, clientId, category])
   @@index([clientId])
@@ -140,4 +144,54 @@ enum ProposalStatus {
   ACCEPTED
   REJECTED
   WITHDRAWN
+}
+
+model Conversation {
+  id        String   @id @default(uuid()) @db.Uuid
+  projectId String?  @db.Uuid
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  project      Project?                  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  participants ConversationParticipant[]
+  messages     Message[]
+
+  @@index([projectId])
+  @@index([updatedAt])
+}
+
+model ConversationParticipant {
+  id             String @id @default(uuid())
+  conversationId String @db.Uuid
+  participantId  String @db.Uuid
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  participant User @relation(fields: [participantId], references: [id], onDelete: Cascade)
+
+  @@unique([conversationId, participantId])
+}
+
+model Message {
+  id             String      @id @default(uuid())
+  conversationId String      @db.Uuid
+  senderId       String      @db.Uuid
+  content        String      @db.Text
+  isRead         Boolean     @default(false)
+  type           MessageType
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  sender User @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+  @@index([senderId])
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  FILE
 }

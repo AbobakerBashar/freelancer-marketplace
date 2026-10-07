@@ -9,6 +9,7 @@ import {
 	getPopularCategories,
 	getActiveProjects,
 	getProjectWorkspaceById,
+	getProjectConversation,
 } from "../controllers/projects.js";
 
 import { asyncHandler } from "../utils/async-handler.js";
@@ -40,6 +41,13 @@ router.get("/active", authMiddleware, asyncHandler(getActiveProjects));
 
 // GET /projects/stats  --> Get projects statistics
 router.get("/stats", asyncHandler(getProjectsStatsics));
+
+// GET /projects/:id/conversation
+router.get(
+	"/:id/conversation",
+	authMiddleware,
+	asyncHandler(getProjectConversation),
+);
 
 // GET /projects/popular-categories  --> Get popular project categories
 router.get("/popular-categories", asyncHandler(getPopularCategories));

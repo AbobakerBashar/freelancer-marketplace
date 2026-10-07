@@ -6,6 +6,7 @@ import cors from "cors";
 import authRoutes from "./routes/auth.js";
 import projectsRoutes from "./routes/projects.js";
 import proposalsRoutes from "./routes/proposals.js";
+import conversationsRoutes from "./routes/conversations.js";
 import { errorMiddleware } from "./middleware/error.middleware.js";
 
 const app = express();
@@ -34,8 +35,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectsRoutes);
 
 // PROPOSALS ROUTES
-
 app.use("/api/proposals", proposalsRoutes);
+
+// CONVERSATIONS ROUTES
+app.use("/api/conversations", conversationsRoutes);
 
 // Error handling middleware
 app.use(errorMiddleware);

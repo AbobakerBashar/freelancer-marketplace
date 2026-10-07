@@ -334,6 +334,19 @@ export const acceptProposalRepo = async (
 			data: { status: "IN_PROGRESS" },
 		});
 
+		// Create conversation for CLIENT & FREELANCER
+		await tx.conversation.create({
+			data: {
+				projectId: updatedProposal.projectId,
+				participants: {
+					create: [
+						{ participantId: updatedProposal.freelancerId },
+						{ participantId: clientId },
+					],
+				},
+			},
+		});
+
 		return updatedProposal;
 	});
 };

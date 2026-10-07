@@ -11,6 +11,8 @@ import {
 	getProjectStatusRepo,
 	getActiveProjectsRepo,
 	getProjectWorkspaceRepo,
+	getProjectConversationRepo,
+	isConversationMemberRepo,
 } from "../repositories/projects.js";
 import type {
 	ActiveProject,
@@ -279,6 +281,7 @@ export const getProjectWorkspaceByIdService = async (
 			client: undefined,
 			freelancer: undefined,
 			proposals: undefined,
+			conversations: undefined,
 
 			budgetMin: project.budgetMin ? Number(project.budgetMin) : null,
 			budgetMax: project.budgetMax ? Number(project.budgetMax) : null,
@@ -286,7 +289,36 @@ export const getProjectWorkspaceByIdService = async (
 		client: project.client,
 		proposal,
 		freelancer: project.freelancer || null,
+		conversationId: project.conversations[0].id,
 	};
 
 	return workspace;
+};
+
+export const getProjectConversationService = async (
+	userId: string,
+	projectId: string,
+) => {
+	// Check Ownership
+	const isMember = await isConversationMemberRepo(userId, projectId);
+	if (!isMember) throw new AppError(403, "Unauthorized!");
+
+	const conversation = await getProjectConversationRepo(userId, projectId);
+
+	if (!conversation)
+		throw new AppError(404, "Conversation not found for this project.");
+
+	const messages = (conversation?.messages || []).map((ms) => ({
+		...ms,
+		sender: {
+			id: ms.sender.id,
+			name: ms.sender.name,
+			avatarUrl: ms.sender.avatarUrl,
+		},
+	}));
+
+	return {
+		messages,
+		conversationId: conversation.id,
+	};
 };

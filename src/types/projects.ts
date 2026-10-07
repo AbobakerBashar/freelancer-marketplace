@@ -129,5 +129,6 @@ export type WorkspaceResponse = {
 		freelancer: Partial<User> | null;
 		proposal: Proposal | null;
 		currentUserRole: "CLIENT" | "FREELANCER";
+		conversationId: string;
 	};
 };

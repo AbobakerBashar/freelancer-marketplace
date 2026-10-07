@@ -216,6 +216,13 @@ export const getProjectWorkspaceRepo = async (
 			],
 		},
 		include: {
+			conversations: {
+				where: {},
+				select: {
+					id: true,
+				},
+				take: 1,
+			},
 			client: {
 				select: {
 					id: true,
@@ -237,4 +244,60 @@ export const getProjectWorkspaceRepo = async (
 			},
 		},
 	});
+};
+
+export const isConversationMemberRepo = async (
+	userId: string,
+	projectId: string,
+) => {
+	const conversation = await prisma.conversation.findFirst({
+		where: {
+			projectId,
+			participants: {
+				some: {
+					participantId: userId,
+				},
+			},
+		},
+		select: {
+			id: true,
+		},
+	});
+	return !!conversation?.id;
+};
+
+export const getProjectConversationRepo = async (
+	userId: string,
+	projectId: string,
+) => {
+	const conversation = await prisma.conversation.findFirst({
+		where: {
+			projectId,
+			participants: {
+				some: {
+					participantId: userId,
+				},
+			},
+		},
+		select: {
+			id: true,
+			messages: {
+				orderBy: {
+					createdAt: "desc",
+				},
+				take: 20,
+				include: {
+					sender: {
+						select: {
+							id: true,
+							name: true,
+							avatarUrl: true,
+						},
+					},
+				},
+			},
+		},
+	});
+
+	return conversation;
 };

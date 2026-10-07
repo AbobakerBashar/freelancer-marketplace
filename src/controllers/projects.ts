@@ -20,8 +20,11 @@ import {
 	getPopularCategoriesService,
 	getActiveProjectsService,
 	getProjectWorkspaceByIdService,
+	getProjectConversationService,
 } from "../services/projects.js";
 import { uuid } from "zod";
+
+import { ProjectConversationResponse } from "../types/conversations.js";
 
 export const getProjects = async (
 	req: Request,
@@ -161,7 +164,6 @@ export const getProjectWorkspaceById = async (
 	const { id: projectId } = req.params;
 	const { id: userId, role } = req.user ?? {};
 
-	console.log("User ID:", req.user);
 	const workspace = await getProjectWorkspaceByIdService(projectId, userId!);
 
 	res.status(200).json({
@@ -170,5 +172,20 @@ export const getProjectWorkspaceById = async (
 			...workspace,
 			currentUserRole: role as "CLIENT" | "FREELANCER",
 		},
+	});
+};
+
+export const getProjectConversation = async (
+	req: Request<{ id: string }>,
+	res: Response<ProjectConversationResponse>,
+) => {
+	const { id: userId } = req.user ?? {};
+	const { id: projectId } = req.params;
+
+	const conversation = await getProjectConversationService(userId!, projectId);
+
+	res.status(200).json({
+		success: true,
+		data: conversation,
 	});
 };
