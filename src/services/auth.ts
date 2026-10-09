@@ -4,10 +4,16 @@ import {
 	createUser,
 	getUserByEmail,
 	updateUser,
+	updateUserAvatar,
+	getAvatarPublicIdByUserId,
 } from "../repositories/auth.js";
 import type { LoginInput, RegisterInput, UpdateInput } from "../types/auth.js";
 import { AppError } from "../utils/AppError.js";
 import { getHashedPassword, isPasswordValid } from "../utils/auth.js";
+import {
+	uploadToCloudinary,
+	deleteFromCloudinary,
+} from "../utils/cloudinary.js";
 
 export const getMeService = async (userId: string) => {
 	const user = await getUserById(userId);
@@ -59,4 +65,32 @@ export const updateService = async (
 		location: updates.location,
 		role: updates.role,
 	});
+};
+
+export const updateAvatarService = async (userId: string, filePath: string) => {
+	// Upload the avatar to Cloudinary
+	const uploadResult = await uploadToCloudinary(filePath, "avatars");
+	const avatarUrl = uploadResult.url;
+	const avatarPublicId = uploadResult.publicId;
+
+	try {
+		const existingAvatarPublicId = await getAvatarPublicIdByUserId(userId);
+
+		// Update the user's avatar in the database
+		const updatedUser = await updateUserAvatar(userId, {
+			avatarUrl,
+			avatarPublicId,
+		});
+
+		// Delete the existing avatar from Cloudinary if it exists
+		if (existingAvatarPublicId) {
+			const destryResult = await deleteFromCloudinary(existingAvatarPublicId);
+		}
+
+		return updatedUser;
+	} catch (error) {
+		// If updating the user fails, delete the uploaded avatar from Cloudinary
+		await deleteFromCloudinary(avatarPublicId);
+		throw new AppError(500, "Failed to update user avatar");
+	}
 };

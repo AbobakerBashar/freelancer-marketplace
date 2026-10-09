@@ -48,17 +48,6 @@ export const updateSchema = z.object({
 		.regex(/^\+?[1-9]\d{7,14}$/, "Invalid phone number")
 		.optional(),
 
-	role: z
-		.preprocess(
-			(value) =>
-				typeof value === "string" ? value.trim().toUpperCase() : value,
-			z.enum(
-				["FREELANCER", "CLIENT"],
-				"Role must be either 'CLIENT' or 'FREELANCER'",
-			),
-		)
-		.optional(),
-
 	bio: z
 		.string()
 		.trim()

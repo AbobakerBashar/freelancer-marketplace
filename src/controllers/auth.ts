@@ -4,9 +4,13 @@ import {
 	registerService,
 	loginService,
 	updateService,
+	updateAvatarService,
 } from "../services/auth.js";
 import type { AuthResponse, LoginInput, RegisterInput } from "../types/auth.js";
 import { generateToken } from "../utils/auth.js";
+
+import { v2 as cloudinary } from "cloudinary";
+import { uploadToCloudinary } from "../utils/cloudinary.js";
 
 export const getMe = async (req: Request, res: Response) => {
 	const userId = req.user?.id;
@@ -69,3 +73,22 @@ export const deleteUser = async (
 	req: Request,
 	res: Response<AuthResponse>,
 ) => {};
+
+export const updateAvatar = async (
+	req: Request,
+	res: Response<AuthResponse>,
+) => {
+	const userId = req.user?.id;
+
+	// Upload the avatar to Cloudinary
+	const file = req.file!;
+
+	// Update the user's avatar in the database
+	const updatedUser = await updateAvatarService(userId!, file.path);
+
+	res.json({
+		success: true,
+		message: "User avatar updated successfully",
+		user: updatedUser,
+	});
+};

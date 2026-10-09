@@ -5,6 +5,7 @@ import {
 	login,
 	update,
 	deleteUser,
+	updateAvatar,
 } from "../controllers/auth.js";
 
 import { validate } from "../middleware/validate.js";
@@ -15,6 +16,9 @@ import {
 } from "../schemas/auth.schemas.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { asyncHandler } from "../utils/async-handler.js";
+
+import { upload } from "../config/multer.js";
+import { checkFileMiddleware } from "../middleware/checkFileMiddleware.js";
 
 const router = Router();
 
@@ -33,6 +37,14 @@ router.patch(
 	authMiddleware,
 	validate(updateSchema, "body"),
 	asyncHandler(update),
+);
+
+router.patch(
+	"/update/avatar",
+	authMiddleware,
+	upload.single("avatar"),
+	checkFileMiddleware,
+	asyncHandler(updateAvatar),
 );
 
 router.delete("/delete", asyncHandler(deleteUser));

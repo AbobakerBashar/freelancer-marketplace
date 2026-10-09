@@ -328,10 +328,13 @@ export const acceptProposalRepo = async (
 			},
 		});
 
-		// Update the project status to IN_PROGRESS
+		// Update the project status to IN_PROGRESS & set the freelancerId
 		await tx.project.update({
 			where: { id: updatedProposal.projectId },
-			data: { status: "IN_PROGRESS" },
+			data: {
+				status: "IN_PROGRESS",
+				freelancerId: updatedProposal.freelancerId,
+			},
 		});
 
 		// Create conversation for CLIENT & FREELANCER

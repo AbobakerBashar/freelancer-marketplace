@@ -12,3 +12,6 @@ Reconnection handling
 Notifications
 
 //
+
+1. install cloundinary & multer
+2. configer Multer & Cloundinary

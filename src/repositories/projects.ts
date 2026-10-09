@@ -58,7 +58,7 @@ export const getProjectsRepo = async (query: ProjectQuery) => {
 	return { projects, totalCount };
 };
 
-export const getActiveProjectsRepo = async (userId: string, role: string) => {
+export const getActiveProjectsRepo = async (userId: string) => {
 	const projects = await prisma.project.findMany({
 		where: {
 			status: "IN_PROGRESS",

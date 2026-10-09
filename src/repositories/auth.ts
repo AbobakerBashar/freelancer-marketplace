@@ -64,6 +64,39 @@ export const updateUser = async (
 			name: true,
 			email: true,
 			phone: true,
+			location: true,
+			bio: true,
+			avatarUrl: true,
+			createdAt: true,
+			updatedAt: true,
+		},
+	});
+};
+
+export const getAvatarPublicIdByUserId = async (userId: string) => {
+	const user = await prisma.user.findUnique({
+		where: { id: userId },
+		select: { avatarPublicId: true },
+	});
+	return user?.avatarPublicId || null;
+};
+
+export const updateUserAvatar = async (
+	userId: string,
+	updates: { avatarUrl: string; avatarPublicId: string },
+) => {
+	return await prisma.user.update({
+		where: { id: userId },
+		data: {
+			avatarUrl: updates.avatarUrl,
+			avatarPublicId: updates.avatarPublicId,
+		},
+		select: {
+			id: true,
+			name: true,
+			email: true,
+			phone: true,
+			location: true,
 			bio: true,
 			avatarUrl: true,
 			createdAt: true,

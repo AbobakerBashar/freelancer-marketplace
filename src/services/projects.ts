@@ -44,9 +44,8 @@ export const getProjectsService = async (query: ProjectQuery) => {
 
 export const getActiveProjectsService = async (
 	userid: string,
-	role: string,
 ): Promise<ActiveProject[]> => {
-	const projects = await getActiveProjectsRepo(userid, role);
+	const projects = await getActiveProjectsRepo(userid);
 
 	const activeProjects = projects.map((project) => ({
 		...project,

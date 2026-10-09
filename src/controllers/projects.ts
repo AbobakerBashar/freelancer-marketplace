@@ -45,12 +45,12 @@ export const getActiveProjects = async (
 	req: Request,
 	res: Response<ActiveProjectsResponse>,
 ) => {
-	const { id, role } = req.user ?? {};
+	const { id: userId } = req.user ?? {};
 
-	if (!id || !role)
+	if (!userId)
 		return res.status(401).json({ success: false, message: "Unauthorized" });
 
-	const projects = await getActiveProjectsService(id, role);
+	const projects = await getActiveProjectsService(userId);
 
 	res.status(200).json({
 		success: true,
